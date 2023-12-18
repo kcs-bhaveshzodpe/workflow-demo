@@ -20,9 +20,9 @@ jobs:
       - name: Extract branch name
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "Branch name:${{ github.ref#refs/heads/ }}"
+            echo "Branch name: $(basename $GITHUB_REF)"
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "Branch name:${{ github.head_ref }}"
+            echo "Branch name: ${{ github.head_ref }}"
           fi
 
       # Add more steps as needed for your workflow
