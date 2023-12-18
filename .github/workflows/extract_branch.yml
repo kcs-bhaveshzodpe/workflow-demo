@@ -1,0 +1,23 @@
+name: Extract Branch Name
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  extract_branch_name:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Extract branch name
+        run: echo "Branch name: ${GITHUB_REF#refs/heads/}"
+
+      # Add more steps as needed for your workflow
