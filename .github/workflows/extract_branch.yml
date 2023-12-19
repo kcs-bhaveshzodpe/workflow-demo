@@ -24,17 +24,17 @@ jobs:
           if [[ "${{ github.event_name }}" == "push" ]]; then
             branch_name=$(basename $GITHUB_REF)
             echo "Branch Name (push): $(basename $GITHUB_REF)"
-              if [[ ! $branch_name =~ ^(feature|release|bugfix|hotfix)\/[a-zA-Z0-9_]+\/[0-9]+\/.+$ ]]; then
-                echo $branch_name "is invalid branch. Branch names must follow the pattern: {feature/release/bugfix}/hotfix/developer_name/ticket_no/task_title"
-                exit 1
-              fi
+            if [[ ! $branch_name =~ ^(feature|release|bugfix|hotfix)\/[a-zA-Z0-9_]+\/[0-9]+\/.+$ ]]; then
+              echo $branch_name "is invalid branch. Branch names must follow the pattern: {feature/release/bugfix/hotfix}/developer_name/ticket_no/task_title"
+              exit 1
+            fi
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             branch_name=${{ github.head_ref }}
             echo "Branch Name (pull_request): ${{ github.head_ref }}"
-              if [[ ! $branch_name =~ ^(feature|release|bugfix|hotfix)\/[a-zA-Z0-9_]+\/[0-9]+\/.+$ ]]; then
-                echo $branch_name "is invalid branch. Branch names must follow the pattern: {feature/release/bugfix}/hotfix/developer_name/ticket_no/task_title"
-                exit 1
-              fi
+            if [[ ! $branch_name =~ ^(feature|release|bugfix|hotfix)\/[a-zA-Z0-9_]+\/[0-9]+\/.+$ ]]; then
+              echo $branch_name "is invalid branch. Branch names must follow the pattern: {feature/release/bugfix/hotfix}/developer_name/ticket_no/task_title"
+              exit 1
+            fi
           fi
           
       # Add more steps as needed for your workflow
