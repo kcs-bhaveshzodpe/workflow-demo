@@ -1,0 +1,55 @@
+name: PR Review Reminder
+
+on:
+  schedule:
+    # Runs every 24 hours (you can adjust this as per your needs)
+    - cron: '0 0 * * *'  # Runs at midnight UTC
+  pull_request:
+    types: [opened, synchronize, reopened]  # Trigger when a PR is created, updated, or reopened
+
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up GitHub CLI
+        uses: cli/cli@v2
+        with:
+          version: '2.21.0'
+
+      - name: Get open pull requests
+        id: pr_check
+        run: |
+          prs=$(gh pr list --state open --json number,createdAt,assignees,reviewRequests,updatedAt,url --jq '.[] | select(.assignees | length > 0) | select(.reviewRequests | length > 0)')
+          echo "prs=$prs" >> $GITHUB_ENV
+
+      - name: Check for stale PRs and send reminders
+        run: |
+          if [[ -z "$prs" ]]; then
+            echo "No open PRs needing reminders."
+            exit 0
+          fi
+
+          current_time=$(date +%s)
+          reminder_time_limit=$((60*60*24))  # 24 hours in seconds
+          
+          for pr in $(echo "$prs" | jq -r '.number'); do
+            pr_url=$(echo "$prs" | jq -r --arg pr_number "$pr" '.[] | select(.number == ($pr_number | tonumber)) | .url')
+            pr_creation_time=$(echo "$prs" | jq -r --arg pr_number "$pr" '.[] | select(.number == ($pr_number | tonumber)) | .createdAt')
+
+            # Get PR creation time as timestamp
+            pr_creation_timestamp=$(date -d "$pr_creation_time" +%s)
+
+            # Calculate time difference
+            time_diff=$((current_time - pr_creation_timestamp))
+            
+            # If time since PR creation exceeds SLA (e.g., 24 hours), send a reminder
+            if [[ $time_diff -gt $reminder_time_limit ]]; then
+              # Send reminder (via GitHub comment, for example)
+              echo "Sending reminder for PR $pr_url..."
+              gh pr comment "$pr_url" --body "Reminder: This PR has not been reviewed yet. Could you please review it as soon as possible."
+            fi
+          done
