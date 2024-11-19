@@ -1,9 +1,7 @@
 name: PR Review Reminder
 
 on:
-  schedule:
-    # Runs every 24 hours (you can adjust this as per your needs)
-    - cron: '0 0 * * *'  # Runs at midnight UTC
+  workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened]  # Trigger when a PR is created, updated, or reopened
 
